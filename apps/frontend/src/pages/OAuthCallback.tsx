@@ -72,14 +72,14 @@ export default function OAuthCallback() {
     void run()
   }, [code, state, error, errorDescription])
 
-  let message = '正在完成登录…'
+  let message = 'Completing login…'
   if (!window.opener) {
     if (exchangeError) {
-      message = `登录失败：${exchangeError}`
+      message = `Login failed: ${exchangeError}`
     } else if (error) {
-      message = `登录失败：${errorDescription || error}`
+      message = `Login failed: ${errorDescription || error}`
     } else if (!code || !state) {
-      message = 'OAuth 回调缺少 code 或 state。'
+      message = 'OAuth callback is missing code or state.'
     }
   }
 

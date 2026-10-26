@@ -27,7 +27,7 @@ export default function Home() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState(() => {
     const params = new URLSearchParams(window.location.search)
-    return params.get('logged_out') === '1' ? '已退出登录。' : ''
+    return params.get('logged_out') === '1' ? 'Logged out.' : ''
   })
   const [loading, setLoading] = useState<LoadingState>(null)
   const [loginTick, setLoginTick] = useState(0)
@@ -46,7 +46,7 @@ export default function Home() {
     (err: unknown): boolean => {
       if (err instanceof ApiError && err.code === 'AUTH_REQUIRED') {
         resetAuthState()
-        setError('会话已失效，请重新登录。')
+        setError('Session expired. Please log in again.')
         return true
       }
       return false
@@ -65,7 +65,11 @@ export default function Home() {
       setLoggedIn(true)
     } catch (err) {
       if (!handleAuthFailure(err)) {
-        setError(err instanceof Error ? err.message : '获取 access token 失败。')
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to fetch the access token.',
+        )
       }
     } finally {
       setLoading(null)
@@ -87,18 +91,18 @@ export default function Home() {
 
       if (event.data.error) {
         setLoading(null)
-        setError(`OAuth 登录失败：${event.data.error}`)
+        setError(`OAuth login failed: ${event.data.error}`)
         return
       }
       if (!event.data.token) {
         setLoading(null)
-        setError('OAuth 回调没有返回 JWT。')
+        setError('OAuth callback did not return a JWT.')
         return
       }
 
       setJwt(event.data.token)
       setLoggedIn(true)
-      setInfo('登录成功。')
+      setInfo('Logged in successfully.')
       void loadToken()
     }
 
@@ -130,7 +134,9 @@ export default function Home() {
       'popup,width=640,height=760',
     )
     if (!popup) {
-      setError('登录弹窗被浏览器拦截，请允许本站弹出窗口。')
+      setError(
+        'The login popup was blocked. Please allow popups for this site.',
+      )
       return
     }
 
@@ -150,16 +156,18 @@ export default function Home() {
       setAccessToken(data.access_token)
       setExpiresAt(data.expires_at)
       setSiteName(data.site_name)
-      setInfo('Access token 已刷新。')
+      setInfo('Access token refreshed.')
     } catch (err) {
       if (handleAuthFailure(err)) return
 
       if (err instanceof ApiError && err.code === 'REAUTH_REQUIRED') {
         resetAuthState()
-        setError('Refresh token 已失效，请重新登录。')
+        setError('Refresh token expired. Please log in again.')
       } else {
         setError(
-          err instanceof Error ? err.message : '刷新 access token 失败。',
+          err instanceof Error
+            ? err.message
+            : 'Failed to refresh the access token.',
         )
       }
     } finally {
@@ -174,14 +182,20 @@ export default function Home() {
     try {
       const data = await apiFetch<SpacesResponse>('/api/atlassian/spaces')
       setSpaces(data.spaces.map((space) => space.name))
-      setInfo(`获取到 ${data.count} 个 space。`)
+      setInfo(`Fetched ${data.count} space(s).`)
     } catch (err) {
       if (handleAuthFailure(err)) return
 
       if (err instanceof ApiError && err.code === 'ATLASSIAN_TOKEN_EXPIRED') {
-        setError('Atlassian access token 已过期，请点击 Refresh 后再试。')
+        setError(
+          'The Atlassian access token has expired. Click Refresh and try again.',
+        )
       } else {
-        setError(err instanceof Error ? err.message : '获取 space 列表失败。')
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Failed to fetch the space list.',
+        )
       }
     } finally {
       setLoading(null)
@@ -238,7 +252,7 @@ export default function Home() {
           readOnly
           rows={6}
           value={accessToken}
-          placeholder="登录成功后在这里显示 Atlassian access token"
+          placeholder="The Atlassian access token will appear here after login"
         />
       </section>
 
@@ -258,7 +272,7 @@ export default function Home() {
           readOnly
           rows={10}
           value={spaces.join('\n')}
-          placeholder="点击 Get Spaces 获取当前用户可见的 space 标题列表"
+          placeholder="Click Get Spaces to load the space titles visible to the current user"
         />
       </section>
 

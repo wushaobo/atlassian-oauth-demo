@@ -26,7 +26,7 @@ export default function Logout() {
 
   return (
     <main className="card">
-      <p className="message info">正在退出登录…</p>
+      <p className="message info">Logging out…</p>
     </main>
   )
 }
